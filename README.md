@@ -89,6 +89,49 @@ When `server.py` starts, it automatically discovers all folders in `apps/` conta
 
 ---
 
+## Running Natively on a Jailbroken Kindle (Standalone - No PC Needed)
+
+You can run this entire Multi-App Runtime Hub directly on your Kindle with **zero external PC or server running**. The Kindle will host the hub server locally on `127.0.0.1:5050`, allowing you to switch between Spotify, Plane Radar, and Sydney Trains natively on-device.
+
+### Prerequisites
+1. **Jailbroken Kindle Paperwhite 1** (FW 5.6.1.1 or similar).
+2. **KUAL** (Kindle Unified Application Launcher) installed.
+3. **Python 3** installed on Kindle (install NiLuJe's `python3` package via MRPI or KUAL from the MobileRead forum).
+
+### Installation Steps
+1. Connect your Kindle to your computer via USB.
+2. Copy this entire repository into the Kindle's `extensions` directory:
+   ```
+   [Kindle USB Root]
+     └── extensions/
+         └── kindle-hub/           <-- Copy Kindle-simulator here
+             ├── config.xml
+             ├── menu.json
+             ├── bin/launcher.sh
+             ├── server.py
+             ├── simulator/
+             ├── apps/
+             ├── spotifykindle/
+             ├── planekindle/
+             └── trainkindle/
+   ```
+3. Configure any app tokens or station preferences inside `spotifykindle/config.json`, `planekindle/config.json`, and `trainkindle/config.json`.
+4. Safely eject and unplug the USB cable.
+
+### Launching on the Kindle
+1. On your Kindle home screen, tap **KUAL**.
+2. Select **Kindle Multi-App Hub** &rarr; tap **Start Hub (All Apps On-Device)**.
+3. The launcher will automatically:
+   - Prevent screensaver/sleep timeout (`preventScreenSaver = 1`).
+   - Launch `python3 server.py --no-browser` on `127.0.0.1:5050`.
+   - Open the Kindle Experimental Browser directly to `http://127.0.0.1:5050/kindle`.
+4. You now have the full multi-app hub running 100% locally on your Kindle with touch switching between apps!
+
+### Stopping the App
+Open **KUAL** &rarr; **Kindle Multi-App Hub** &rarr; **Stop Hub & Re-enable Sleep**.
+
+---
+
 ## App Manifest Specification (`kindle-app.json`)
 
 To make any standalone project compatible with the Kindle Simulator, place a `kindle-app.json` file in its root:
@@ -124,6 +167,10 @@ Kindle Paperwhite 1 (Firmware 5.6.1.1) runs an older WebKit browser engine with 
 
 ```
 Kindle-simulator/
+├── config.xml              # KUAL extension manifest for jailbroken Kindle
+├── menu.json               # KUAL on-device menu definition
+├── bin/
+│   └── launcher.sh         # On-device background daemon & browser launcher
 ├── server.py               # Multi-app runtime host & auto-discovery server
 ├── simulator/
 │   ├── index.html          # Desktop simulator interface

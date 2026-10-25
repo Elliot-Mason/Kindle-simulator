@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "name": "Kindle Multi-App Hub",
+      "priority": 1,
+      "items": [
+        {
+          "name": "Start Hub (All Apps On-Device)",
+          "priority": 1,
+          "action": "./bin/launcher.sh",
+          "params": "start"
+        },
+        {
+          "name": "Stop Hub & Re-enable Sleep",
+          "priority": 2,
+          "action": "./bin/launcher.sh",
+          "params": "stop"
+        }
+      ]
+    }
+  ]
+}
