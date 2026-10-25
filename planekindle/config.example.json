@@ -1,0 +1,12 @@
+{
+  "home_lat": -33.8688,
+  "home_lon": 151.2093,
+  "radius_km": 25.0,
+  "aviationstack_key": "",
+  "opensky_user": "",
+  "opensky_pass": "",
+  "poll_interval_ms": 30000,
+  "full_refresh_interval_ms": 600000,
+  "opensky_cache_ttl_sec": 30,
+  "port": 5051
+}

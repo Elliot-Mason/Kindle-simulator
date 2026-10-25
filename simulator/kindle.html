@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Kindle E-Ink Hub (PW1)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      color: #000000;
+      font-family: Georgia, "Caecilia", serif;
+      overflow: hidden;
+    }
+    .flash-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #000000;
+      z-index: 9999;
+    }
+    .topbar {
+      width: 100%;
+      border-bottom: 3px solid #000000;
+      padding: 8px 14px;
+      font-family: sans-serif;
+      font-size: 14px;
+      font-weight: bold;
+      overflow: hidden;
+    }
+    .topbar-left { float: left; padding-top: 4px; }
+    .topbar-right { float: right; }
+    .top-btn {
+      display: inline-block;
+      border: 2px solid #000000;
+      background: #ffffff;
+      color: #000000;
+      font-weight: bold;
+      font-size: 13px;
+      padding: 3px 10px;
+      margin-left: 6px;
+      cursor: pointer;
+    }
+    .top-btn.active {
+      background: #000000;
+      color: #ffffff;
+    }
+
+    /* Spotify App View */
+    .spotify-container {
+      padding: 18px 24px;
+      text-align: center;
+    }
+    .art-wrap {
+      margin: 8px auto 16px auto;
+      width: 310px;
+      height: 310px;
+      border: 3px solid #000;
+      background: #f0f0f0;
+      overflow: hidden;
+    }
+    #art-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .sp-title {
+      font-size: 27px;
+      font-weight: bold;
+      line-height: 1.2;
+      margin-bottom: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sp-artist {
+      font-family: sans-serif;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sp-album {
+      font-size: 17px;
+      font-style: italic;
+      color: #333;
+      margin-bottom: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sp-badge {
+      display: inline-block;
+      background: #000;
+      color: #fff;
+      font-family: monospace;
+      font-size: 15px;
+      font-weight: bold;
+      padding: 5px 16px;
+      margin-bottom: 14px;
+    }
+    .progress-section {
+      clear: both;
+      border-top: 3px solid #000;
+      padding-top: 12px;
+      margin-top: 6px;
+      text-align: left;
+    }
+    .time-row {
+      font-family: monospace;
+      font-size: 19px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .time-left { float: left; }
+    .time-right { float: right; }
+    .bar-outer {
+      width: 100%;
+      height: 22px;
+      border: 3px solid #000;
+      padding: 3px;
+    }
+    .bar-inner {
+      height: 100%;
+      background: #000;
+      width: 0%;
+    }
+
+    /* Spotify Touch Controls for Kindle PW1 */
+    .sp-controls {
+      display: table;
+      width: 100%;
+      margin: 18px 0 6px 0;
+      table-layout: fixed;
+    }
+    .ctrl-btn {
+      display: table-cell;
+      width: 33.3%;
+      background: #ffffff;
+      color: #000000;
+      border: 3.5px solid #000000;
+      font-family: monospace, sans-serif;
+      font-size: 21px;
+      font-weight: bold;
+      text-align: center;
+      padding: 14px 6px;
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+      vertical-align: middle;
+    }
+    .ctrl-btn:active, .ctrl-btn.btn-active {
+      background: #000000 !important;
+      color: #ffffff !important;
+    }
+    .ctrl-btn + .ctrl-btn {
+      border-left: none;
+    }
+    .ctrl-play {
+      font-size: 23px;
+      background: #f0f0f0;
+    }
+    .ctrl-btn-idle {
+      display: inline-block;
+      background: #ffffff;
+      color: #000000;
+      border: 3.5px solid #000000;
+      font-family: monospace, sans-serif;
+      font-size: 22px;
+      font-weight: bold;
+      padding: 14px 28px;
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .ctrl-btn-idle:active, .ctrl-btn-idle.btn-active {
+      background: #000000 !important;
+      color: #ffffff !important;
+    }
+    .sp-ctrl-status {
+      font-family: monospace;
+      font-size: 15px;
+      font-weight: bold;
+      color: #333333;
+      margin-top: 8px;
+      min-height: 20px;
+      text-align: center;
+    }
+
+    /* Plane App View */
+    .plane-wrap {
+      padding: 14px 20px;
+    }
+    .radar-col {
+      text-align: center;
+      padding-bottom: 12px;
+      border-bottom: 3px solid #000000;
+      margin-bottom: 14px;
+    }
+    #radar-canvas {
+      display: inline-block;
+      width: 340px;
+      height: 340px;
+    }
+    .header-row {
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .callsign {
+      float: left;
+      font-size: 44px;
+      font-weight: bold;
+      line-height: 1.05;
+    }
+    .late-badge {
+      float: left;
+      display: none;
+      background: #000000;
+      color: #ffffff;
+      font-family: monospace;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 4px 12px;
+      margin-left: 14px;
+      margin-top: 6px;
+    }
+    .type-badge {
+      float: right;
+      border: 2.5px solid #000000;
+      font-family: monospace;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 4px 12px;
+      margin-top: 6px;
+    }
+    .airline {
+      clear: both;
+      font-family: sans-serif;
+      font-size: 22px;
+      font-weight: bold;
+      color: #222222;
+      margin-bottom: 12px;
+    }
+    .route-box {
+      border: 3px solid #000000;
+      background: #f4f4f4;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .route-side { width: 42%; }
+    .route-from { float: left; text-align: left; }
+    .route-to { float: right; text-align: right; }
+    .route-mid {
+      float: left;
+      width: 16%;
+      text-align: center;
+      font-family: monospace;
+      font-size: 28px;
+      font-weight: bold;
+      padding-top: 18px;
+    }
+    .route-lbl { font-family: monospace; font-size: 13px; font-weight: bold; color: #444; }
+    .route-iata { font-family: monospace; font-size: 42px; font-weight: bold; }
+    .route-airport { font-family: sans-serif; font-size: 16px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .route-time { font-family: monospace; font-size: 17px; font-weight: bold; margin-top: 4px; }
+    .grid-table { width: 100%; border-collapse: collapse; }
+    .grid-table td { width: 33.3%; border: 2.5px solid #000; padding: 8px 10px; vertical-align: top; }
+    .cell-lbl { font-family: monospace; font-size: 12px; font-weight: bold; color: #444; margin-bottom: 2px; }
+    .cell-val { font-family: monospace; font-size: 26px; font-weight: bold; line-height: 1.15; }
+    .cell-sub { font-family: sans-serif; font-size: 14px; color: #333; margin-top: 2px; }
+    .idle-box { padding: 65px 20px; text-align: center; }
+    .idle-box h2 { font-size: 32px; margin-bottom: 12px; }
+    .idle-box p { font-family: sans-serif; font-size: 19px; color: #333; }
+
+    /* Train App View (Sydney Trains Digital Indicator Board) */
+    .train-wrap {
+      padding: 16px 20px;
+    }
+    .train-route-bar {
+      border: 3.5px solid #000;
+      background: #000;
+      color: #fff;
+      padding: 10px 16px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .train-route-txt {
+      float: left;
+      font-size: 26px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    .train-swap-btn {
+      float: right;
+      background: #fff;
+      color: #000;
+      border: 2px solid #fff;
+      font-family: monospace;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 4px 12px;
+      cursor: pointer;
+    }
+    .train-hero-card {
+      border: 3.5px solid #000;
+      padding: 16px 20px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .train-hero-left {
+      float: left;
+      width: 56%;
+    }
+    .train-hero-right {
+      float: right;
+      width: 44%;
+      text-align: right;
+    }
+    .train-badge-row {
+      margin-bottom: 8px;
+    }
+    .train-line-badge {
+      display: inline-block;
+      background: #000;
+      color: #fff;
+      font-family: monospace;
+      font-size: 22px;
+      font-weight: bold;
+      padding: 4px 12px;
+      margin-right: 8px;
+    }
+    .train-plat-badge {
+      display: inline-block;
+      border: 2.5px solid #000;
+      font-family: monospace;
+      font-size: 20px;
+      font-weight: bold;
+      padding: 3px 10px;
+    }
+    .train-line-name {
+      font-family: sans-serif;
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .train-meta-sub {
+      font-size: 16px;
+      font-style: italic;
+      color: #333;
+    }
+    .train-countdown-pill {
+      display: inline-block;
+      background: #000;
+      color: #fff;
+      font-family: monospace;
+      font-size: 24px;
+      font-weight: bold;
+      padding: 6px 14px;
+      margin-bottom: 6px;
+    }
+    .train-dep-time {
+      font-family: monospace;
+      font-size: 46px;
+      font-weight: bold;
+      line-height: 1.1;
+      letter-spacing: -1px;
+    }
+    .train-arr-info {
+      font-family: sans-serif;
+      font-size: 18px;
+      font-weight: bold;
+      color: #222;
+      margin-top: 4px;
+    }
+    .train-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 3px solid #000;
+    }
+    .train-table th {
+      background: #000;
+      color: #fff;
+      font-family: monospace;
+      font-size: 15px;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    .train-table td {
+      border-top: 2px solid #000;
+      padding: 9px 10px;
+      font-family: monospace;
+      font-size: 17px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="flash-overlay" class="flash-overlay"></div>
+
+  <div class="topbar">
+    <div class="topbar-left"><span id="app-title">SPOTIFY</span> &middot; <span id="clock-txt">--:--</span></div>
+    <div class="topbar-right">
+      <span class="top-btn active" id="switch-app-btn">App: Spotify</span>
+      <span class="top-btn" id="flash-btn">Flash</span>
+    </div>
+  </div>
+
+  <!-- APP 1: SPOTIFYKINDLE -->
+  <div id="app-spotify">
+    <div id="sp-idle" class="idle-box" style="display:none;">
+      <h2 id="sp-idle-title">No Track Currently Playing</h2>
+      <p id="sp-idle-sub">Play music on your Spotify app...</p>
+      <div style="margin-top:22px;">
+        <button type="button" class="ctrl-btn-idle" id="ctrl-idle-play">&#9654; Resume Playback</button>
+      </div>
+      <div class="sp-ctrl-status" id="sp-idle-status"></div>
+    </div>
+    <div id="sp-player" class="spotify-container">
+      <div class="art-wrap">
+        <canvas id="art-canvas" width="260" height="260"></canvas>
+      </div>
+      <div class="sp-title" id="sp-title">Loading Spotify...</div>
+      <div class="sp-artist" id="sp-artist">Please wait</div>
+      <div class="sp-album" id="sp-album"></div>
+      <div class="sp-badge" id="sp-badge">CONNECTING</div>
+      <div class="progress-section">
+        <div class="time-row">
+          <span class="time-left" id="sp-time">0:00 / 0:00</span>
+          <span class="time-right" id="sp-pct">0%</span>
+        </div>
+        <div class="bar-outer">
+          <div class="bar-inner" id="sp-bar"></div>
+        </div>
+      </div>
+
+      <!-- Touch Playback Controls for Kindle -->
+      <div class="sp-controls" id="sp-controls">
+        <button type="button" class="ctrl-btn" id="ctrl-prev" title="Previous Track">&#9198; PREV</button>
+        <button type="button" class="ctrl-btn ctrl-play" id="ctrl-play" title="Play / Pause">&#9654; PLAY</button>
+        <button type="button" class="ctrl-btn" id="ctrl-next" title="Next Track">NEXT &#9197;</button>
+      </div>
+      <div class="sp-ctrl-status" id="sp-ctrl-status"></div>
+    </div>
+  </div>
+
+  <!-- APP 2: PLANEKINDLE -->
+  <div id="app-plane" style="display:none;">
+    <div class="plane-wrap">
+      <div class="radar-col">
+        <canvas id="radar-canvas" width="340" height="340"></canvas>
+      </div>
+      <div id="pl-idle" class="idle-box" style="display:none;">
+        <h2 id="pl-idle-title">No flights in range</h2>
+        <p id="pl-idle-sub">Scanning Sydney airspace via OpenSky Network</p>
+      </div>
+      <div id="pl-flight">
+        <div class="header-row">
+          <div class="callsign" id="f-callsign">---</div>
+          <div class="late-badge" id="f-late">LATE</div>
+          <div class="type-badge" id="f-type">TYPE: N/A</div>
+        </div>
+        <div class="airline" id="f-airline">Scanning OpenSky...</div>
+        <div class="route-box">
+          <div class="route-side route-from">
+            <div class="route-lbl">FROM</div>
+            <div class="route-iata" id="f-dep-iata">---</div>
+            <div class="route-airport" id="f-dep-name">---</div>
+            <div class="route-time" id="f-dep-time">DEP --:--</div>
+          </div>
+          <div class="route-mid">&rarr;</div>
+          <div class="route-side route-to">
+            <div class="route-lbl">TO</div>
+            <div class="route-iata" id="f-arr-iata">---</div>
+            <div class="route-airport" id="f-arr-name">---</div>
+            <div class="route-time" id="f-arr-time">ARR --:--</div>
+          </div>
+        </div>
+        <table class="grid-table">
+          <tr>
+            <td><div class="cell-lbl">ALTITUDE</div><div class="cell-val" id="f-alt">0 m</div><div class="cell-sub" id="f-alt-ft">0 ft</div></td>
+            <td><div class="cell-lbl">SPEED</div><div class="cell-val" id="f-spd">0 km/h</div><div class="cell-sub" id="f-spd-kts">0 kts</div></td>
+            <td><div class="cell-lbl">DISTANCE</div><div class="cell-val" id="f-dist">0.0 km</div><div class="cell-sub" id="f-brg">Brg 0&deg;</div></td>
+          </tr>
+          <tr>
+            <td><div class="cell-lbl">HEADING</div><div class="cell-val" id="f-hdg">0&deg;</div><div class="cell-sub">True Track</div></td>
+            <td><div class="cell-lbl">VERT RATE</div><div class="cell-val" id="f-vrate">0.0 m/s</div><div class="cell-sub" id="f-vrate-fpm">Level</div></td>
+            <td><div class="cell-lbl">ICAO24</div><div class="cell-val" id="f-icao">------</div><div class="cell-sub" id="f-src">Local DB</div></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP 3: TRAINKINDLE (TransportTracker) -->
+  <div id="app-train" style="display:none;">
+    <div class="train-wrap">
+      <div class="train-route-bar">
+        <div class="train-route-txt" id="tr-route-header">PENRITH &rarr; CENTRAL</div>
+        <div class="train-swap-btn" id="tr-swap-btn">&#8646; SWAP</div>
+      </div>
+
+      <div id="tr-idle" class="idle-box" style="display:none;">
+        <h2 id="tr-idle-title">No trains currently scheduled</h2>
+        <p id="tr-idle-sub">Check back shortly or tap Swap to reverse route</p>
+      </div>
+
+      <div id="tr-content">
+        <!-- Hero: Next Train Departure -->
+        <div class="train-hero-card">
+          <div class="train-hero-left">
+            <div class="train-badge-row">
+              <span class="train-line-badge" id="tr-line-badge">T1</span>
+              <span class="train-plat-badge" id="tr-plat-badge">PLATFORM 1</span>
+            </div>
+            <div class="train-line-name" id="tr-line-name">T1 Western Line</div>
+            <div class="train-meta-sub" id="tr-meta-sub">8 Cars &middot; Many Seats Available</div>
+          </div>
+          <div class="train-hero-right">
+            <div><span class="train-countdown-pill" id="tr-countdown">in 4 MINS</span></div>
+            <div class="train-dep-time" id="tr-dep-time">10:30 AM</div>
+            <div class="train-arr-info" id="tr-arr-info">Arr 11:22 AM (52 mins)</div>
+          </div>
+        </div>
+
+        <!-- Upcoming Departures Table -->
+        <table class="train-table">
+          <thead>
+            <tr>
+              <th style="width:25%;">DEP TIME</th>
+              <th style="width:20%;">COUNTDOWN</th>
+              <th style="width:18%;">LINE</th>
+              <th style="width:17%;">PLAT</th>
+              <th style="width:20%;">ARR TIME</th>
+            </tr>
+          </thead>
+          <tbody id="tr-upcoming-body">
+            <!-- populated dynamically -->
+          </tbody>
+        </table>
+
+        <!-- Touch Controls Bar -->
+        <div class="sp-controls" style="margin-top:14px;">
+          <button type="button" class="ctrl-btn" id="tr-btn-swap">&#8646; SWAP ROUTE</button>
+          <button type="button" class="ctrl-btn" id="tr-btn-poll">&#8635; REFRESH</button>
+        </div>
+        <div class="sp-ctrl-status" id="tr-status"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Strict ES5 for Kindle PW1 FW 5.6.1.1 Experimental Browser
+    (function() {
+      var activeApp = "spotify";
+      var lastHubSyncTs = 0;
+      var artCanvas = document.getElementById("art-canvas");
+      var artCtx = artCanvas.getContext("2d");
+      var radarCanvas = document.getElementById("radar-canvas");
+      var rctx = radarCanvas.getContext("2d");
+      var lastArtUrl = "";
+      var spTrack = { hasTrack: false, isPlaying: false, progressMs: 0, durationMs: 0 };
+      var lastPollTime = 0;
+
+      function formatTime(ms) {
+        var totalSec = Math.max(0, Math.floor(ms / 1000));
+        var m = Math.floor(totalSec / 60);
+        var s = totalSec % 60;
+        return m + ":" + (s < 10 ? "0" : "") + s;
+      }
+
+      function updateClock() {
+        var d = new Date();
+        var h = d.getHours();
+        var m = d.getMinutes();
+        document.getElementById("clock-txt").innerHTML =
+          (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m;
+      }
+
+      function fullFlashRefresh() {
+        var el = document.getElementById("flash-overlay");
+        el.style.display = "block";
+        setTimeout(function() {
+          el.style.background = "#ffffff";
+          setTimeout(function() {
+            el.style.display = "none";
+            el.style.background = "#000000";
+          }, 250);
+        }, 250);
+      }
+
+      function setActiveApp(appName) {
+        if (appName === activeApp) return;
+        activeApp = appName;
+        document.getElementById("app-spotify").style.display = activeApp === "spotify" ? "block" : "none";
+        document.getElementById("app-plane").style.display = activeApp === "plane" ? "block" : "none";
+        document.getElementById("app-train").style.display = activeApp === "train" ? "block" : "none";
+        var title = "SPOTIFY";
+        if (activeApp === "plane") title = "PLANE RADAR";
+        if (activeApp === "train") title = "SYDNEY TRAINS";
+        document.getElementById("app-title").innerHTML = title;
+        document.getElementById("switch-app-btn").innerHTML = "App: " + (activeApp.charAt(0).toUpperCase() + activeApp.slice(1));
+        fullFlashRefresh();
+        lastPollTime = 0;
+        pollActiveApp();
+      }
+
+      document.getElementById("switch-app-btn").onclick = function() {
+        var next = activeApp === "spotify" ? "plane" : (activeApp === "plane" ? "train" : "spotify");
+        setActiveApp(next);
+      };
+
+      document.getElementById("flash-btn").onclick = function() {
+        fullFlashRefresh();
+      };
+
+      function ditherArtwork(img) {
+        var W = artCanvas.width, H = artCanvas.height;
+        artCtx.drawImage(img, 0, 0, W, H);
+        try {
+          var imgData = artCtx.getImageData(0, 0, W, H);
+          var d = imgData.data, total = W * H, gray = [], minL = 255, maxL = 0, i;
+          for (i = 0; i < total; i++) {
+            var luma = (d[i * 4] * 77 + d[i * 4 + 1] * 150 + d[i * 4 + 2] * 29) >> 8;
+            gray[i] = luma;
+            if (luma < minL) minL = luma;
+            if (luma > maxL) maxL = luma;
+          }
+          var range = maxL - minL;
+          if (range > 20) {
+            for (i = 0; i < total; i++) gray[i] = Math.floor(((gray[i] - minL) * 255) / range);
+          }
+          for (var y = 0; y < H; y++) {
+            for (var x = 0; x < W; x++) {
+              var idx = y * W + x;
+              var oldP = Math.max(0, Math.min(255, gray[idx]));
+              var newP = oldP < 128 ? 0 : 255;
+              var err = oldP - newP;
+              gray[idx] = newP;
+              if (x + 1 < W) gray[y * W + x + 1] += Math.floor((err * 7) / 16);
+              if (y + 1 < H && x - 1 >= 0) gray[(y + 1) * W + x - 1] += Math.floor((err * 3) / 16);
+              if (y + 1 < H) gray[(y + 1) * W + x] += Math.floor((err * 5) / 16);
+              if (y + 1 < H && x + 1 < W) gray[(y + 1) * W + x + 1] += Math.floor((err * 1) / 16);
+            }
+          }
+          for (i = 0; i < total; i++) {
+            var v = gray[i];
+            d[i * 4] = v; d[i * 4 + 1] = v; d[i * 4 + 2] = v; d[i * 4 + 3] = 255;
+          }
+          artCtx.putImageData(imgData, 0, 0);
+        } catch (e) {}
+      }
+
+      function updateSpotifyProgress() {
+        var p = spTrack.progressMs, dur = spTrack.durationMs;
+        document.getElementById("sp-time").innerHTML = formatTime(p) + " / " + formatTime(dur);
+        var pct = dur > 0 ? Math.min(100, Math.floor((p * 100) / dur)) : 0;
+        document.getElementById("sp-pct").innerHTML = pct + "%";
+        document.getElementById("sp-bar").style.width = pct + "%";
+      }
+
+      var kindleMapMode = "waypoints"; // 'waypoints' | 'detailed' | 'sydney' | 'off'
+
+      var SYD_MAP_DATA = {
+        oceanCoast: [
+          [-33.555, 151.340], [-33.580, 151.332], [-33.600, 151.328], [-33.618, 151.332],
+          [-33.633, 151.334], [-33.652, 151.326], [-33.662, 151.323], [-33.678, 151.314],
+          [-33.685, 151.312], [-33.702, 151.306], [-33.715, 151.305], [-33.732, 151.305],
+          [-33.745, 151.318], [-33.755, 151.300], [-33.770, 151.296], [-33.782, 151.291],
+          [-33.796, 151.290], [-33.801, 151.297], [-33.816, 151.299]
+        ],
+        harbourNorth: [
+          [-33.816, 151.299], [-33.812, 151.282], [-33.801, 151.284], [-33.817, 151.258],
+          [-33.805, 151.243], [-33.785, 151.220], [-33.814, 151.243], [-33.826, 151.252],
+          [-33.839, 151.244], [-33.848, 151.238], [-33.844, 151.225], [-33.851, 151.215],
+          [-33.852, 151.210], [-33.848, 151.190], [-33.838, 151.170], [-33.836, 151.146],
+          [-33.820, 151.100], [-33.815, 151.085], [-33.822, 151.050], [-33.815, 151.005]
+        ],
+        harbourSouth: [
+          [-33.815, 151.005], [-33.828, 151.015], [-33.830, 151.065], [-33.845, 151.120],
+          [-33.847, 151.155], [-33.853, 151.178], [-33.864, 151.196], [-33.868, 151.200],
+          [-33.858, 151.211], [-33.856, 151.216], [-33.861, 151.223], [-33.868, 151.234],
+          [-33.863, 151.248], [-33.865, 151.258], [-33.868, 151.266], [-33.847, 151.275],
+          [-33.842, 151.281], [-33.833, 151.282]
+        ],
+        easternCoast: [
+          [-33.833, 151.282], [-33.854, 151.283], [-33.891, 151.278], [-33.903, 151.272],
+          [-33.912, 151.267], [-33.923, 151.259], [-33.951, 151.258], [-33.966, 151.254],
+          [-33.980, 151.249], [-33.998, 151.247]
+        ],
+        botanyBay: [
+          [-33.998, 151.247], [-33.993, 151.235], [-33.978, 151.220], [-33.970, 151.210],
+          [-33.959, 151.192], [-33.965, 151.182], [-33.955, 151.162], [-33.968, 151.155],
+          [-33.988, 151.152], [-33.998, 151.144], [-34.005, 151.135], [-34.012, 151.160],
+          [-34.008, 151.205], [-34.005, 151.225], [-34.018, 151.238]
+        ],
+        pittwater: [
+          [-33.580, 151.332], [-33.605, 151.320], [-33.630, 151.315], [-33.655, 151.300],
+          [-33.655, 151.280], [-33.620, 151.285], [-33.585, 151.295], [-33.555, 151.310],
+          [-33.550, 151.250]
+        ],
+        cooksRiver: [
+          [-33.918, 151.148], [-33.932, 151.154], [-33.945, 151.162], [-33.955, 151.162]
+        ],
+        narrabeenLagoon: [
+          [-33.715, 151.305], [-33.710, 151.285], [-33.722, 151.272], [-33.728, 151.295], [-33.715, 151.305]
+        ],
+        middleHarbourBranches: [
+          [-33.805, 151.243], [-33.785, 151.220], [-33.774, 151.205], [-33.765, 151.225]
+        ],
+        islands: [
+          [-33.847, 151.171, 3.5, "Cockatoo"],
+          [-33.853, 151.196, 2.5, "Goat"],
+          [-33.859, 151.261, 2.5, "Shark"],
+          [-33.861, 151.246, 2.0, "Clark"],
+          [-33.555, 151.310, 4.0, "Lion"]
+        ],
+        runways: [
+          [[-33.930, 151.171], [-33.965, 151.182]], // 16R/34L
+          [[-33.938, 151.185], [-33.959, 151.192]], // 16L/34R
+          [[-33.944, 151.164], [-33.954, 151.188]]  // 07/25
+        ],
+        ysbkRunways: [
+          [[-33.922, 150.982], [-33.926, 150.995]]  // Bankstown 11/29
+        ],
+        extendedApproaches: [
+          [[-33.865, 151.135], [-33.930, 151.171]], // 16R North
+          [[-34.030, 151.218], [-33.965, 151.182]]  // 34L South
+        ],
+        keyLocations: [
+          { name: "YSSY", desc: "SYD AIRPORT", lat: -33.9461, lon: 151.1772, type: "airport" },
+          { name: "YSBK", desc: "BANKSTOWN", lat: -33.9242, lon: 150.9883, type: "airport" },
+          { name: "CBD/BRG", desc: "HARBOUR BRIDGE", lat: -33.8523, lon: 151.2108, type: "bridge" },
+          { name: "MANLY", desc: "MANLY", lat: -33.7997, lon: 151.2844, type: "beach" },
+          { name: "N HEAD", desc: "NORTH HEAD", lat: -33.8160, lon: 151.2990, type: "headland" },
+          { name: "S HEAD", desc: "SOUTH HEAD", lat: -33.8330, lon: 151.2820, type: "headland" },
+          { name: "BONDI", desc: "BONDI", lat: -33.8910, lon: 151.2780, type: "beach" },
+          { name: "COOGEE", desc: "COOGEE", lat: -33.9230, lon: 151.2590, type: "beach" },
+          { name: "LNG REEF", desc: "LONG REEF", lat: -33.7450, lon: 151.3180, type: "headland" },
+          { name: "NARRABEEN", desc: "LAGOON", lat: -33.7150, lon: 151.3050, type: "beach" },
+          { name: "PLM BCH", desc: "PALM BEACH", lat: -33.5850, lon: 151.3250, type: "beach" },
+          { name: "PARRA", desc: "PARRAMATTA", lat: -33.8150, lon: 151.0050, type: "city" },
+          { name: "CHATSWOOD", desc: "CHATSWOOD", lat: -33.7960, lon: 151.1800, type: "city" },
+          { name: "HORNSBY", desc: "HORNSBY", lat: -33.7030, lon: 151.0980, type: "city" },
+          { name: "OLYMPIC PK", desc: "OLYMPIC PARK", lat: -33.8470, lon: 151.0650, type: "landmark" },
+          { name: "BOTANY BAY", desc: "BOTANY BAY", lat: -33.9980, lon: 151.1850, type: "bay" }
+        ],
+        aviationFixes: [
+          { name: "SOSIK", lat: -33.6200, lon: 151.1900 },
+          { name: "KABEK", lat: -33.8800, lon: 151.3600 },
+          { name: "RIVET", lat: -34.0200, lon: 151.1600 }
+        ]
+      };
+
+      function drawSydneyRadarMap(ctx, cx, cy, radiusPx, data, mapMode) {
+        if (!mapMode) mapMode = kindleMapMode;
+        if (mapMode === "off") return;
+
+        var homeLat = (data && data.homeLat) ? Number(data.homeLat) : -33.748115;
+        var homeLon = (data && data.homeLon) ? Number(data.homeLon) : 151.154198;
+        var maxKm = (data && data.radiusKm) ? Number(data.radiusKm) : 25.0;
+        var cosLat = Math.cos((homeLat * Math.PI) / 180);
+        var pxPerKm = radiusPx / maxKm;
+
+        function toPx(lat, lon) {
+          var dx = (lon - homeLon) * 111.32 * cosLat;
+          var dy = (lat - homeLat) * 110.57;
+          return [cx + dx * pxPerKm, cy - dy * pxPerKm];
+        }
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, radiusPx - 1, 0, Math.PI * 2, false);
+        ctx.clip();
+
+        var waterFill = "#eae9e3";
+        var coastStroke = "#666666";
+
+        function tracePoly(pts) {
+          if (!pts || !pts.length) return;
+          var p0 = toPx(pts[0][0], pts[0][1]);
+          ctx.moveTo(p0[0], p0[1]);
+          for (var i = 1; i < pts.length; i++) {
+            var p = toPx(pts[i][0], pts[i][1]);
+            ctx.lineTo(p[0], p[1]);
+          }
+        }
+
+        // LAYER A: COASTLINES & WATERWAYS (Drawn in 'detailed' and 'sydney' modes if in Sydney bounds)
+        var isSydneyArea = Math.abs(homeLat - (-33.8)) < 0.8 && Math.abs(homeLon - 151.15) < 0.8;
+        if ((mapMode === "detailed" || mapMode === "sydney") && isSydneyArea) {
+          // Pacific Ocean
+          ctx.beginPath();
+          tracePoly(SYD_MAP_DATA.oceanCoast);
+          var shPt = toPx(-33.833, 151.282);
+          ctx.lineTo(shPt[0], shPt[1]);
+          tracePoly(SYD_MAP_DATA.easternCoast);
+          var csPt = toPx(-34.018, 151.238);
+          ctx.lineTo(csPt[0], csPt[1]);
+          var seBound = toPx(-34.15, 151.80);
+          var neBound = toPx(-33.40, 151.80);
+          ctx.lineTo(seBound[0], seBound[1]);
+          ctx.lineTo(neBound[0], neBound[1]);
+          ctx.closePath();
+          ctx.fillStyle = waterFill;
+          ctx.fill();
+          ctx.strokeStyle = coastStroke;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          // Sydney Harbour
+          ctx.beginPath();
+          tracePoly(SYD_MAP_DATA.harbourNorth);
+          tracePoly(SYD_MAP_DATA.harbourSouth);
+          ctx.closePath();
+          ctx.fillStyle = waterFill;
+          ctx.fill();
+          ctx.strokeStyle = coastStroke;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          // Botany Bay
+          ctx.beginPath();
+          tracePoly(SYD_MAP_DATA.botanyBay);
+          ctx.closePath();
+          ctx.fillStyle = waterFill;
+          ctx.fill();
+          ctx.strokeStyle = coastStroke;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          // Pittwater
+          ctx.beginPath();
+          tracePoly(SYD_MAP_DATA.pittwater);
+          ctx.closePath();
+          ctx.fillStyle = waterFill;
+          ctx.fill();
+          ctx.strokeStyle = coastStroke;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          if (mapMode === "detailed") {
+            ctx.beginPath();
+            tracePoly(SYD_MAP_DATA.cooksRiver);
+            ctx.strokeStyle = coastStroke;
+            ctx.lineWidth = 2.0;
+            ctx.stroke();
+
+            ctx.beginPath();
+            tracePoly(SYD_MAP_DATA.narrabeenLagoon);
+            ctx.closePath();
+            ctx.fillStyle = waterFill;
+            ctx.fill();
+            ctx.strokeStyle = coastStroke;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            for (var m = 0; m < SYD_MAP_DATA.islands.length; m++) {
+              var isl = SYD_MAP_DATA.islands[m];
+              var ip = toPx(isl[0], isl[1]);
+              ctx.beginPath();
+              ctx.arc(ip[0], ip[1], isl[2], 0, Math.PI * 2, false);
+              ctx.fillStyle = "#ffffff";
+              ctx.fill();
+              ctx.strokeStyle = coastStroke;
+              ctx.lineWidth = 1.2;
+              ctx.stroke();
+            }
+          }
+        }
+
+        // LAYER B: RUNWAYS & EXTENDED APPROACH PATHS (Dynamic Worldwide)
+        var rf = data && data.radarFeatures;
+        var airportsToDraw = (rf && rf.airports && rf.airports.length > 0)
+          ? rf.airports
+          : (isSydneyArea ? [{ iata: "YSSY", lat: -33.9461, lon: 151.1772, runways: SYD_MAP_DATA.runways }] : []);
+
+        for (var apIdx = 0; apIdx < airportsToDraw.length; apIdx++) {
+          var ap = airportsToDraw[apIdx];
+          if (ap.runways && ap.runways.length > 0) {
+            for (var r = 0; r < ap.runways.length; r++) {
+              var rw = ap.runways[r];
+              if (rw && rw.length >= 2) {
+                var p1 = toPx(rw[0][0], rw[0][1]);
+                var p2 = toPx(rw[1][0], rw[1][1]);
+                ctx.strokeStyle = "#000000";
+                ctx.lineWidth = 3.5;
+                ctx.beginPath();
+                ctx.moveTo(p1[0], p1[1]);
+                ctx.lineTo(p2[0], p2[1]);
+                ctx.stroke();
+
+                if (mapMode === "detailed" || mapMode === "waypoints") {
+                  var angle = Math.atan2(p2[1] - p1[1], p2[0] - p1[0]);
+                  var extLen = 8 * pxPerKm;
+                  ctx.strokeStyle = "#555555";
+                  ctx.lineWidth = 1.5;
+                  ctx.beginPath();
+                  ctx.moveTo(p1[0], p1[1]);
+                  ctx.lineTo(p1[0] - Math.cos(angle) * extLen, p1[1] - Math.sin(angle) * extLen);
+                  ctx.moveTo(p2[0], p2[1]);
+                  ctx.lineTo(p2[0] + Math.cos(angle) * extLen, p2[1] + Math.sin(angle) * extLen);
+                  ctx.stroke();
+                }
+              }
+            }
+          }
+
+          var apP = toPx(ap.lat, ap.lon);
+          var apDistSq = (apP[0] - cx) * (apP[0] - cx) + (apP[1] - cy) * (apP[1] - cy);
+          if (apDistSq < (radiusPx - 10) * (radiusPx - 10)) {
+            ctx.strokeStyle = "#000000";
+            ctx.lineWidth = 2.0;
+            ctx.strokeRect(apP[0] - 5, apP[1] - 5, 10, 10);
+            ctx.font = "bold 11px monospace";
+            ctx.fillStyle = "#000000";
+            ctx.textAlign = "left";
+            ctx.fillText(ap.iata || ap.icao || "APT", apP[0] + 9, apP[1] - 4);
+          }
+        }
+
+        // LAYER C: KEY LOCATIONS & SUBURBS (Dynamic Worldwide)
+        if ((mapMode === "detailed" || mapMode === "waypoints") && isSydneyArea) {
+          ctx.strokeStyle = "#555555";
+          ctx.lineWidth = 1.5;
+          for (var f = 0; f < SYD_MAP_DATA.aviationFixes.length; f++) {
+            var fix = SYD_MAP_DATA.aviationFixes[f];
+            var fp = toPx(fix.lat, fix.lon);
+            var fDistSq = (fp[0] - cx) * (fp[0] - cx) + (fp[1] - cy) * (fp[1] - cy);
+            if (fDistSq < (radiusPx - 14) * (radiusPx - 14)) {
+              ctx.beginPath();
+              ctx.moveTo(fp[0], fp[1] - 4);
+              ctx.lineTo(fp[0] + 4, fp[1]);
+              ctx.lineTo(fp[0], fp[1] + 4);
+              ctx.lineTo(fp[0] - 4, fp[1]);
+              ctx.closePath();
+              ctx.stroke();
+              ctx.font = "bold 9px monospace";
+              ctx.fillStyle = "#555555";
+              ctx.textAlign = "center";
+              ctx.fillText(fix.name, fp[0], fp[1] + 11);
+            }
+          }
+        }
+
+        var locList = (rf && rf.landmarks && rf.landmarks.length > 0)
+          ? rf.landmarks
+          : (isSydneyArea ? SYD_MAP_DATA.keyLocations : []);
+
+        for (var k = 0; k < locList.length; k++) {
+          var loc = locList[k];
+          var lp = toPx(loc.lat, loc.lon);
+          var lDistSq = (lp[0] - cx) * (lp[0] - cx) + (lp[1] - cy) * (lp[1] - cy);
+          if (lDistSq < (radiusPx - 12) * (radiusPx - 12)) {
+            if (loc.type === "bridge") {
+              ctx.strokeStyle = "#000000";
+              ctx.lineWidth = 2.5;
+              ctx.beginPath();
+              ctx.moveTo(lp[0] - 5, lp[1]);
+              ctx.lineTo(lp[0] + 5, lp[1]);
+              ctx.stroke();
+              ctx.font = "bold 10px monospace";
+              ctx.fillStyle = "#000000";
+              ctx.textAlign = "center";
+              ctx.fillText(loc.name, lp[0], lp[1] - 6);
+            } else if (loc.type === "home_area") {
+              ctx.beginPath();
+              ctx.arc(lp[0], lp[1], 4, 0, Math.PI * 2, false);
+              ctx.fillStyle = "#000000";
+              ctx.fill();
+              ctx.font = "bold 11px monospace";
+              ctx.fillStyle = "#000000";
+              ctx.textAlign = "center";
+              ctx.fillText(loc.name, lp[0], lp[1] + 14);
+            } else if (loc.type === "airport") {
+              // handled in airports loop above
+            } else {
+              ctx.beginPath();
+              ctx.arc(lp[0], lp[1], mapMode === "waypoints" ? 3.5 : 2.5, 0, Math.PI * 2, false);
+              ctx.fillStyle = mapMode === "waypoints" ? "#000000" : "#555555";
+              ctx.fill();
+              ctx.font = mapMode === "waypoints" ? "bold 11px monospace" : "bold 9px monospace";
+              ctx.fillStyle = mapMode === "waypoints" ? "#000000" : "#555555";
+              ctx.textAlign = "center";
+              ctx.fillText(loc.name, lp[0], lp[1] + 12);
+            }
+          }
+        }
+
+        ctx.restore();
+      }
+
+      var lastRadarData = null;
+
+      radarCanvas.addEventListener("click", function() {
+        if (kindleMapMode === "waypoints") kindleMapMode = "detailed";
+        else if (kindleMapMode === "detailed") kindleMapMode = "sydney";
+        else if (kindleMapMode === "sydney") kindleMapMode = "off";
+        else kindleMapMode = "waypoints";
+        if (lastRadarData) drawRadar(lastRadarData);
+      });
+
+      function drawRadar(data) {
+        lastRadarData = data;
+        var W = radarCanvas.width, H = radarCanvas.height, cx = W / 2, cy = H / 2, R = Math.floor(W / 2) - 22;
+        var maxKm = (data && data.radiusKm) ? Number(data.radiusKm) : 25.0;
+        rctx.fillStyle = "#ffffff";
+        rctx.fillRect(0, 0, W, H);
+
+        // 0. Geographic Map Backdrop
+        drawSydneyRadarMap(rctx, cx, cy, R, data);
+
+        rctx.strokeStyle = "#000000";
+        rctx.fillStyle = "#000000";
+
+        // Outer ring
+        rctx.lineWidth = 3.5;
+        rctx.beginPath(); rctx.arc(cx, cy, R, 0, Math.PI * 2, false); rctx.stroke();
+
+        // Intermediate rings (0.5 and 0.25, 0.75)
+        rctx.lineWidth = 1.5;
+        rctx.beginPath(); rctx.arc(cx, cy, R * 0.75, 0, Math.PI * 2, false); rctx.stroke();
+        rctx.beginPath(); rctx.arc(cx, cy, R * 0.5, 0, Math.PI * 2, false); rctx.stroke();
+        rctx.beginPath(); rctx.arc(cx, cy, R * 0.25, 0, Math.PI * 2, false); rctx.stroke();
+
+        // Crosshairs
+        rctx.lineWidth = 1.5;
+        rctx.beginPath();
+        rctx.moveTo(cx - R, cy); rctx.lineTo(cx + R, cy);
+        rctx.moveTo(cx, cy - R); rctx.lineTo(cx, cy + R);
+        rctx.stroke();
+
+        // Range text
+        rctx.font = "bold 13px monospace";
+        rctx.fillStyle = "#555555";
+        rctx.textAlign = "left";
+        rctx.fillText(maxKm.toFixed(0) + "km", cx + 6, cy - R + 14);
+        rctx.fillText((maxKm * 0.5).toFixed(0) + "km", cx + 6, cy - R * 0.5 + 14);
+
+        // Cardinals
+        rctx.fillStyle = "#000000";
+        rctx.font = "bold 16px monospace";
+        rctx.textAlign = "center";
+        rctx.textBaseline = "middle";
+        rctx.fillText("N", cx, cy - R - 11);
+        rctx.fillText("S", cx, cy + R + 12);
+        rctx.fillText("E", cx + R + 11, cy);
+        rctx.fillText("W", cx - R - 12, cy);
+
+        // Home center point
+        rctx.beginPath(); rctx.arc(cx, cy, 5, 0, Math.PI * 2, false); rctx.fill();
+        rctx.font = "bold 12px monospace";
+        rctx.textAlign = "left";
+        rctx.fillText("HOME", cx + 8, cy + 10);
+
+        if (!data || !data.flightFound) return;
+        var dClamped = Math.min(maxKm * 0.94, Number(data.distance) || 0);
+        var bRad = (((Number(data.bearing) || 0) - 90) * Math.PI) / 180;
+        var pr = (dClamped / maxKm) * R;
+        var px = cx + Math.cos(bRad) * pr, py = cy + Math.sin(bRad) * pr;
+
+        // Bearing dotted/dashed line
+        rctx.lineWidth = 2;
+        rctx.beginPath();
+        rctx.moveTo(cx, cy); rctx.lineTo(px, py);
+        rctx.stroke();
+
+        // Heading vector
+        var hdgRad = (((Number(data.heading) || 0) - 90) * Math.PI) / 180;
+        rctx.lineWidth = 3;
+        rctx.beginPath();
+        rctx.moveTo(px, py);
+        rctx.lineTo(px + Math.cos(hdgRad) * 32, py + Math.sin(hdgRad) * 32);
+        rctx.stroke();
+
+        // Target rings
+        rctx.lineWidth = 2.5;
+        rctx.beginPath(); rctx.arc(px, py, 16, 0, Math.PI * 2, false); rctx.stroke();
+        rctx.beginPath(); rctx.arc(px, py, 5, 0, Math.PI * 2, false); rctx.fill();
+
+        // Callsign badge tag
+        var cs = data.callsign || "";
+        if (cs) {
+          rctx.font = "bold 15px monospace";
+          var tw = rctx.measureText(cs).width + 12;
+          var tx = px + 16 + tw > cx + R ? px - 16 - tw : px + 16;
+          var ty = py - 11;
+          rctx.fillStyle = "#000000";
+          rctx.fillRect(tx, ty, tw, 22);
+          rctx.fillStyle = "#ffffff";
+          rctx.textAlign = "center";
+          rctx.textBaseline = "middle";
+          rctx.fillText(cs, tx + tw / 2, ty + 11);
+        }
+      }
+
+      function sendPlayerCommand(cmd) {
+        var statusEl = document.getElementById("sp-ctrl-status");
+        var idleStatusEl = document.getElementById("sp-idle-status");
+        var isIdle = document.getElementById("sp-idle").style.display !== "none";
+        var activeStatus = isIdle ? idleStatusEl : statusEl;
+
+        var msg = cmd === "next" ? "Skipping track..." : (cmd === "previous" ? "Previous track..." : (cmd === "play" ? "Starting playback..." : "Toggling playback..."));
+        if (activeStatus) activeStatus.innerHTML = msg;
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/player/command", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4) {
+            try {
+              var res = JSON.parse(xhr.responseText);
+              if (res.success) {
+                if (activeStatus) activeStatus.innerHTML = "";
+                if (res.playback && res.playback.hasTrack) {
+                  spTrack = res.playback;
+                  document.getElementById("sp-badge").innerHTML = res.playback.isPlaying ? "PLAYING" : "PAUSED";
+                  var playBtn = document.getElementById("ctrl-play");
+                  if (playBtn) playBtn.innerHTML = res.playback.isPlaying ? "&#10074;&#10074; PAUSE" : "&#9654; PLAY";
+                }
+                setTimeout(pollSpotify, 400);
+              } else {
+                if (activeStatus) {
+                  activeStatus.innerHTML = res.message || "Command failed";
+                }
+                setTimeout(function() {
+                  if (activeStatus) activeStatus.innerHTML = "";
+                }, 6000);
+              }
+            } catch (e) {
+              if (activeStatus) activeStatus.innerHTML = "Error sending command";
+            }
+          }
+        };
+        xhr.send(JSON.stringify({ command: cmd }));
+      }
+
+      function bindTouchButton(id, callback) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var touched = false;
+        el.addEventListener("touchstart", function(e) {
+          touched = true;
+          el.className = el.className + " btn-active";
+          callback(e);
+          setTimeout(function() {
+            el.className = el.className.replace(" btn-active", "");
+          }, 300);
+          if (e.preventDefault) e.preventDefault();
+        }, false);
+        el.addEventListener("click", function(e) {
+          if (touched) {
+            touched = false;
+            return;
+          }
+          callback(e);
+        }, false);
+      }
+
+      bindTouchButton("ctrl-prev", function() { sendPlayerCommand("previous"); });
+      bindTouchButton("ctrl-play", function() { sendPlayerCommand("toggle"); });
+      bindTouchButton("ctrl-next", function() { sendPlayerCommand("next"); });
+      bindTouchButton("ctrl-idle-play", function() { sendPlayerCommand("play"); });
+
+      function pollSpotify() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/api/now-playing?t=" + new Date().getTime(), true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            try {
+              var data = JSON.parse(xhr.responseText);
+              if (!data.success || !data.hasTrack) {
+                spTrack.hasTrack = false;
+                document.getElementById("sp-player").style.display = "none";
+                document.getElementById("sp-idle").style.display = "block";
+                return;
+              }
+              document.getElementById("sp-idle").style.display = "none";
+              document.getElementById("sp-player").style.display = "block";
+              spTrack = data;
+              document.getElementById("sp-title").innerHTML = data.title;
+              document.getElementById("sp-artist").innerHTML = data.artist;
+              document.getElementById("sp-album").innerHTML = data.album;
+              document.getElementById("sp-badge").innerHTML = data.isPlaying ? "PLAYING" : "PAUSED";
+              var playBtn = document.getElementById("ctrl-play");
+              if (playBtn) playBtn.innerHTML = data.isPlaying ? "&#10074;&#10074; PAUSE" : "&#9654; PLAY";
+              updateSpotifyProgress();
+              var artUrl = data.artworkUrl || data.artworkUrlSmall;
+              if (artUrl && artUrl !== lastArtUrl) {
+                lastArtUrl = artUrl;
+                var img = new Image();
+                img.onload = function() { ditherArtwork(img); };
+                img.src = "/api/artwork?url=" + encodeURIComponent(artUrl);
+              }
+            } catch (e) {}
+          }
+        };
+        xhr.send();
+      }
+
+      function pollPlane() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/api/flights?mode=live&t=" + new Date().getTime(), true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            try {
+              var data = JSON.parse(xhr.responseText);
+              drawRadar(data);
+              if (!data.success || !data.flightFound) {
+                document.getElementById("pl-flight").style.display = "none";
+                document.getElementById("pl-idle").style.display = "block";
+                return;
+              }
+              document.getElementById("pl-idle").style.display = "none";
+              document.getElementById("pl-flight").style.display = "block";
+              document.getElementById("f-callsign").innerHTML = data.callsign || "UNKNOWN";
+              document.getElementById("f-late").style.display = data.isLate ? "inline-block" : "none";
+              document.getElementById("f-type").innerHTML = "TYPE: " + (data.aircraftType || "N/A");
+              document.getElementById("f-airline").innerHTML = data.airline || "N/A";
+              document.getElementById("f-dep-iata").innerHTML = data.depIATA || "N/A";
+              document.getElementById("f-dep-name").innerHTML = data.depAirport || "N/A";
+              document.getElementById("f-dep-time").innerHTML = "DEP " + (data.depTime || "--:--");
+              document.getElementById("f-arr-iata").innerHTML = data.arrIATA || "N/A";
+              document.getElementById("f-arr-name").innerHTML = data.arrAirport || "N/A";
+              document.getElementById("f-arr-time").innerHTML = "ARR " + (data.arrTime || "--:--");
+              document.getElementById("f-alt").innerHTML = Math.round(data.altitude || 0) + " m";
+              document.getElementById("f-alt-ft").innerHTML = (data.altitudeFt || 0) + " ft";
+              document.getElementById("f-spd").innerHTML = Math.round(data.speed || 0) + " km/h";
+              document.getElementById("f-spd-kts").innerHTML = (data.speedKts || 0) + " kts";
+              document.getElementById("f-dist").innerHTML = Number(data.distance || 0).toFixed(1) + " km";
+              document.getElementById("f-brg").innerHTML = "Brg " + Math.round(data.bearing || 0) + "&deg;";
+              document.getElementById("f-hdg").innerHTML = Math.round(data.heading || 0) + "&deg;";
+              document.getElementById("f-vrate").innerHTML = Number(data.verticalRate || 0).toFixed(1) + " m/s";
+              document.getElementById("f-icao").innerHTML = (data.icao24 || "------").toUpperCase();
+              document.getElementById("f-src").innerHTML = data.metadataSource || "Local DB";
+            } catch (e) {}
+          }
+        };
+        xhr.send();
+      }
+
+      var trainData = { success: false };
+
+      function renderTrain(data) {
+        if (!data.success || !data.trainFound) {
+          document.getElementById("tr-content").style.display = "none";
+          document.getElementById("tr-idle").style.display = "block";
+          if (data.errorMessage) {
+            document.getElementById("tr-idle-sub").innerHTML = data.errorMessage;
+          }
+          return;
+        }
+        document.getElementById("tr-idle").style.display = "none";
+        document.getElementById("tr-content").style.display = "block";
+
+        var orig = data.originStation || "Origin";
+        var dest = data.destStation || "Destination";
+        document.getElementById("tr-route-header").innerHTML = orig.toUpperCase() + " &rarr; " + dest.toUpperCase();
+
+        document.getElementById("tr-line-badge").innerHTML = data.routeLabel || "T1";
+        document.getElementById("tr-plat-badge").innerHTML = (data.originPlatform || "Platform 1").toUpperCase();
+        document.getElementById("tr-line-name").innerHTML = data.lineName || "Sydney Trains";
+
+        var meta = (data.cars || "8 Cars") + " &middot; " + (data.occupancy || "Seats Available");
+        if (data.realtime) meta = "&bull; Real-time &middot; " + meta;
+        document.getElementById("tr-meta-sub").innerHTML = meta;
+
+        var mins = data.minutesUntil != null ? data.minutesUntil : 0;
+        var countdownTxt = mins <= 0 ? "NOW DEPARTING" : (mins === 1 ? "in 1 MIN" : "in " + mins + " MINS");
+        document.getElementById("tr-countdown").innerHTML = countdownTxt;
+        document.getElementById("tr-dep-time").innerHTML = data.originTime || "--:--";
+
+        var arrTxt = "Arr " + (data.destTime || "--:--");
+        if (data.durationMins) arrTxt += " (" + data.durationMins + " mins)";
+        document.getElementById("tr-arr-info").innerHTML = arrTxt;
+
+        var tbody = document.getElementById("tr-upcoming-body");
+        tbody.innerHTML = "";
+        var up = data.upcoming || [];
+        if (up.length === 0) {
+          tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;font-style:italic;color:#666;'>No further departures scheduled</td></tr>";
+        } else {
+          for (var i = 0; i < up.length; i++) {
+            var item = up[i];
+            var tr = document.createElement("tr");
+            var cd = item.minutesUntil <= 0 ? "NOW" : item.minutesUntil + "m";
+            tr.innerHTML = "<td>" + (item.departureTime || "--:--") + "</td>" +
+                           "<td><span style='background:#000;color:#fff;padding:2px 8px;'>" + cd + "</span></td>" +
+                           "<td><b>" + (item.routeLabel || "T1") + "</b></td>" +
+                           "<td>" + (item.platform || "Plat 1") + "</td>" +
+                           "<td>" + (item.arrivalTime || "--:--") + "</td>";
+            tbody.appendChild(tr);
+          }
+        }
+      }
+
+      function pollTrain() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/api/trains?t=" + new Date().getTime(), true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            try {
+              var data = JSON.parse(xhr.responseText);
+              trainData = data;
+              renderTrain(data);
+            } catch (e) {}
+          }
+        };
+        xhr.send();
+      }
+
+      function swapTrainStations() {
+        var statusEl = document.getElementById("tr-status");
+        if (statusEl) statusEl.innerHTML = "Swapping origin & destination...";
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/api/trains/config?t=" + new Date().getTime(), true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            try {
+              var cfg = JSON.parse(xhr.responseText);
+              var newOrig = cfg.destination_code;
+              var newDest = cfg.origin_code;
+              var postXhr = new XMLHttpRequest();
+              postXhr.open("POST", "/api/trains/config", true);
+              postXhr.setRequestHeader("Content-Type", "application/json");
+              postXhr.onreadystatechange = function() {
+                if (postXhr.readyState === 4) {
+                  if (statusEl) statusEl.innerHTML = "";
+                  fullFlashRefresh();
+                  pollTrain();
+                }
+              };
+              postXhr.send(JSON.stringify({ origin_code: newOrig, destination_code: newDest }));
+            } catch (e) {
+              if (statusEl) statusEl.innerHTML = "Error swapping route";
+            }
+          }
+        };
+        xhr.send();
+      }
+
+      bindTouchButton("tr-swap-btn", swapTrainStations);
+      bindTouchButton("tr-btn-swap", swapTrainStations);
+      bindTouchButton("tr-btn-poll", function() { fullFlashRefresh(); pollTrain(); });
+
+      function checkHubSync() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/api/hub/state?t=" + new Date().getTime(), true);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            try {
+              var st = JSON.parse(xhr.responseText);
+              if (st.updatedAt && st.updatedAt > lastHubSyncTs) {
+                lastHubSyncTs = st.updatedAt;
+                if (st.activeApp && st.activeApp !== activeApp) {
+                  setActiveApp(st.activeApp);
+                }
+              }
+            } catch (e) {}
+          }
+        };
+        xhr.send();
+      }
+
+      function pollActiveApp() {
+        lastPollTime = new Date().getTime();
+        if (activeApp === "spotify") pollSpotify();
+        else if (activeApp === "plane") pollPlane();
+        else if (activeApp === "train") pollTrain();
+      }
+
+      setInterval(function() {
+        updateClock();
+        checkHubSync();
+        var now = new Date().getTime();
+        if (activeApp === "spotify" && spTrack.hasTrack && spTrack.isPlaying) {
+          spTrack.progressMs = Math.min(spTrack.durationMs, spTrack.progressMs + 1000);
+          updateSpotifyProgress();
+        }
+        var interval = activeApp === "spotify" ? 5000 : (activeApp === "train" ? 25000 : 20000);
+        if (now - lastPollTime >= interval) {
+          pollActiveApp();
+        }
+      }, 1000);
+
+      updateClock();
+      pollActiveApp();
+    })();
+  </script>
+</body>
+</html>

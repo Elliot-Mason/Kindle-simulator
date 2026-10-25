@@ -1,0 +1,11 @@
+**/config.json
+**/geofence_cache.json
+__pycache__/
+*.py[cod]
+*$py.class
+.DS_Store
+Thumbs.db
+
+# Ignore dynamically installed apps in apps/ except apps/README.md
+apps/*
+!apps/README.md

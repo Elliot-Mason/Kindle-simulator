@@ -1,0 +1,12 @@
+{
+  "id": "train",
+  "name": "TrainKindle",
+  "version": "1.0.0",
+  "description": "Sydney Trains & NSW Transport Real-Time Departures Board",
+  "author": "Elliot Mason",
+  "icon": "🚆",
+  "backend": "server.py",
+  "client": "kindle.html",
+  "pollIntervalMs": 30000,
+  "port": 5052
+}

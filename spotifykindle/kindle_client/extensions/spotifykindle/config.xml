@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension>
+  <information>
+    <name>SpotifyKindle PW1</name>
+    <version>1.0</version>
+    <author>Elliot</author>
+    <id>spotifykindle-pw1</id>
+  </information>
+  <menus>
+    <menu type="json" dynamic="true">menu.json</menu>
+  </menus>
+</extension>

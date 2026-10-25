@@ -1,0 +1,12 @@
+{
+  "id": "plane",
+  "name": "PlaneKindle",
+  "version": "1.0.0",
+  "description": "Worldwide ADS-B Overhead Flight Tracker & Radar Scope",
+  "author": "Elliot Mason",
+  "icon": "✈️",
+  "backend": "server.py",
+  "client": "kindle.html",
+  "pollIntervalMs": 30000,
+  "port": 5051
+}

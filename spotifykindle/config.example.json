@@ -1,0 +1,9 @@
+{
+  "spotify_client_id": "",
+  "spotify_client_secret": "",
+  "access_token": "",
+  "refresh_token": "",
+  "token_expires_at": 0,
+  "poll_interval_ms": 5000,
+  "port": 5050
+}

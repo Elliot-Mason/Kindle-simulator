@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kindle E-Ink Hub — Unified PW1 (EY21) Simulator</title>
+  <link rel="stylesheet" href="/simulator/simulator.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Left Sidebar: Shared Simulator + Project Controls -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-dot" id="brand-dot"></div>
+        <div>
+          <h1>Kindle E-Ink Hub</h1>
+          <p>Shared PW1 (EY21 · FW 5.6.1.1) Simulator</p>
+        </div>
+      </div>
+
+      <!-- 1. Child Project Switcher -->
+      <section class="control-group project-switcher-group">
+        <div class="group-header">
+          <span>ACTIVE CHILD PROJECT</span>
+          <span id="api-badge" class="status-pill connecting">Connecting...</span>
+        </div>
+        <div class="segmented" id="project-toggle">
+          <button data-project="spotify" class="active">🎵 spotifykindle</button>
+          <button data-project="plane">✈️ planekindle</button>
+          <button data-project="train">🚆 trainkindle</button>
+        </div>
+        <label class="checkbox-row">
+          <input type="checkbox" id="sync-kindle-chk" checked />
+          <span>Auto-switch physical Kindle when switching project</span>
+        </label>
+      </section>
+
+      <!-- 2A. Project Controls: spotifykindle -->
+      <section id="panel-spotify" class="control-group">
+        <div class="group-header">
+          <span>SPOTIFYKINDLE CONTROLS</span>
+        </div>
+        <div class="segmented" id="spotify-source-toggle">
+          <button data-source="live" class="active">Live Spotify</button>
+          <button data-source="mock">Simulator Demo</button>
+        </div>
+
+        <div id="spotify-mock-controls" class="sub-panel hidden">
+          <label class="field-label">Demo Track Preset</label>
+          <select id="spotify-mock-preset">
+            <option value="0">Daft Punk — Get Lucky (Long Title Marquee)</option>
+            <option value="1">Tame Impala — The Less I Know The Better</option>
+            <option value="2">Radiohead — Everything In Its Right Place</option>
+            <option value="3">Idle State (No Track Playing)</option>
+          </select>
+          <div class="btn-row">
+            <button id="spotify-play-btn" class="btn-secondary">Pause / Play</button>
+            <button id="spotify-seek-btn" class="btn-secondary">+15s Seek</button>
+          </div>
+        </div>
+
+        <div class="btn-row" style="margin-top:8px;">
+          <button id="spotify-poll-btn" class="btn-secondary">Poll Spotify</button>
+          <a href="/auth" class="btn-secondary link-btn">Link Spotify</a>
+        </div>
+
+        <div class="field-label" style="margin-top:10px;">Playback Controls</div>
+        <div class="btn-row">
+          <button id="spotify-prev-btn" class="btn-secondary" title="Previous Track">&#9198; Prev</button>
+          <button id="spotify-toggle-btn" class="btn-secondary" title="Play / Pause">&#9654;&#10074;&#10074; Play/Pause</button>
+          <button id="spotify-next-btn" class="btn-secondary" title="Next Track">Next &#9197;</button>
+        </div>
+
+        <label class="field-label">Artwork Dither Algorithm</label>
+        <select id="dither-select">
+          <option value="floyd1">1-Bit Floyd-Steinberg (SpotifyThing)</option>
+          <option value="gray16">16-Level Grayscale (E-Ink Pearl)</option>
+          <option value="atkinson1">1-Bit Atkinson Dither (High Contrast)</option>
+        </select>
+
+        <label class="field-label">Text Overflow Mode (DisplayManager)</label>
+        <select id="overflow-select">
+          <option value="marquee">MODE_MARQUEE (Step Scroll)</option>
+          <option value="hybrid">MODE_HYBRID (2-Line Wrap + Scroll)</option>
+          <option value="wrap">MODE_WRAP_ONLY (Static Wrap)</option>
+        </select>
+      </section>
+
+      <!-- 2B. Project Controls: planekindle -->
+      <section id="panel-plane" class="control-group hidden">
+        <div class="group-header">
+          <span>PLANEKINDLE CONTROLS</span>
+        </div>
+        <div class="segmented" id="plane-source-toggle">
+          <button data-source="live" class="active">Live OpenSky</button>
+          <button data-source="mock">Simulator Demo</button>
+        </div>
+
+        <div id="plane-mock-controls" class="sub-panel hidden">
+          <label class="field-label">Overhead Flight Preset</label>
+          <select id="plane-mock-preset">
+            <option value="0">QFA11 — Qantas A388 (SYD → LAX Climbout)</option>
+            <option value="1">UAE414 — Emirates A388 (DXB → SYD Approach)</option>
+            <option value="2">ANZ103 — Air NZ B789 (AKL → SYD · LATE Badge)</option>
+            <option value="3">QFA1430 — QantasLink DH4 (CBR → SYD Regional)</option>
+            <option value="4">No Flights in Range (displayNoFlights)</option>
+            <option value="5">Searching... Startup Screen (displaySearching)</option>
+            <option value="6">OpenSky HTTP Error (displayError)</option>
+          </select>
+          <div class="btn-row">
+            <button id="plane-motion-btn" class="btn-secondary">Pause Radar Motion</button>
+            <button id="plane-step-btn" class="btn-secondary">+5s Flight Step</button>
+          </div>
+        </div>
+
+        <div class="btn-row" style="margin-top:8px;">
+          <button id="plane-poll-btn" class="btn-secondary">Poll OpenSky</button>
+          <button id="toggle-geofence-btn" class="btn-secondary">Geofence Config</button>
+        </div>
+
+        <div id="geofence-panel" class="sub-panel hidden">
+          <div class="input-grid">
+            <div>
+              <label class="field-label">Home Latitude</label>
+              <input type="number" step="0.0001" id="cfg-lat" value="-33.7481" />
+            </div>
+            <div>
+              <label class="field-label">Home Longitude</label>
+              <input type="number" step="0.0001" id="cfg-lon" value="151.1542" />
+            </div>
+          </div>
+          <label class="field-label">Search Radius (km)</label>
+          <input type="number" step="1" min="2" max="200" id="cfg-radius" value="25.0" />
+          
+          <div style="margin-top:10px; padding-top:8px; border-top:1px solid #333;">
+            <div style="font-size:11px; color:#aaa; margin-bottom:6px;">
+              <b>OpenSky Account</b> (Optional - increases quota 10× to 4,000 req/day):
+            </div>
+            <div class="input-grid">
+              <div>
+                <label class="field-label">Username</label>
+                <input type="text" id="cfg-opensky-user" placeholder="OpenSky username" style="width:100%;" />
+              </div>
+              <div>
+                <label class="field-label">Password</label>
+                <input type="password" id="cfg-opensky-pass" placeholder="••••••••" style="width:100%;" />
+              </div>
+            </div>
+          </div>
+
+          <button id="save-geofence-btn" class="btn-primary" style="margin-top:10px;">
+            Save Settings &amp; Poll
+          </button>
+        </div>
+
+        <label class="field-label">Radar Scope Detail</label>
+        <select id="radar-select">
+          <option value="full">Full Radar + Traffic Blips + SYD Vector</option>
+          <option value="primary">Minimal Compass + Closest Flight Only</option>
+        </select>
+
+        <label class="field-label">Radar Map Backdrop</label>
+        <select id="map-select">
+          <option value="waypoints" selected>Key Locations &amp; Runways Only (Clean ATC Mode)</option>
+          <option value="detailed">Detailed Coastline, Waterways, Islands &amp; Runways</option>
+          <option value="sydney">Standard Coastline, Harbour &amp; Runways</option>
+          <option value="off">Off (Clean Instrument Grid Only)</option>
+        </select>
+
+        <label class="field-label">Telemetry Units</label>
+        <select id="units-select">
+          <option value="dual">Aviation Dual (m + ft · km/h + kts)</option>
+          <option value="metric">Metric Only (m · km/h · km — ESP32 Default)</option>
+        </select>
+      </section>
+
+      <!-- 2C. Project Controls: trainkindle (TransportTracker) -->
+      <section id="panel-train" class="control-group hidden">
+        <div class="group-header">
+          <span>TRAINKINDLE CONTROLS</span>
+        </div>
+        <div class="segmented" id="train-source-toggle">
+          <button data-source="live" class="active">Live TfNSW</button>
+          <button data-source="mock">Simulator Demo</button>
+        </div>
+
+        <div id="train-mock-controls" class="sub-panel hidden">
+          <label class="field-label">Sydney Trains Demo Preset</label>
+          <select id="train-mock-preset">
+            <option value="0">Penrith ➔ Central (T1 Western Line · Platform 1)</option>
+            <option value="1">Parramatta ➔ Town Hall (T2 Inner West · Platform 3)</option>
+            <option value="2">Hornsby ➔ Wynyard (T9 Northern Line · Platform 4)</option>
+            <option value="3">Central ➔ Bondi Junction (T4 Eastern Suburbs · Plat 24)</option>
+          </select>
+        </div>
+
+        <div class="btn-row" style="margin-top:8px;">
+          <button id="train-poll-btn" class="btn-secondary">Poll Trains</button>
+          <button id="train-swap-btn" class="btn-secondary">⇄ Swap Stations</button>
+        </div>
+
+        <div class="field-label" style="margin-top:10px;">Origin Station</div>
+        <select id="train-origin-select">
+          <option value="10101252" selected>Penrith</option>
+          <option value="10101100">Central</option>
+          <option value="10101101">Town Hall</option>
+          <option value="10101229">Parramatta</option>
+          <option value="10101102">Wynyard</option>
+          <option value="10101127">Hornsby</option>
+          <option value="10101206">Strathfield</option>
+          <option value="10101235">Blacktown</option>
+          <option value="10101117">Chatswood</option>
+          <option value="10101109">Bondi Junction</option>
+        </select>
+
+        <div class="field-label" style="margin-top:8px;">Destination Station</div>
+        <select id="train-dest-select">
+          <option value="10101100" selected>Central</option>
+          <option value="10101252">Penrith</option>
+          <option value="10101101">Town Hall</option>
+          <option value="10101229">Parramatta</option>
+          <option value="10101102">Wynyard</option>
+          <option value="10101127">Hornsby</option>
+          <option value="10101206">Strathfield</option>
+          <option value="10101235">Blacktown</option>
+          <option value="10101117">Chatswood</option>
+          <option value="10101109">Bondi Junction</option>
+        </select>
+
+        <button id="train-save-btn" class="btn-primary" style="margin-top:10px;">
+          Save Route &amp; Poll
+        </button>
+      </section>
+
+      <!-- 3. Shared Kindle PW1 Hardware & Display Controls -->
+      <section class="control-group">
+        <div class="group-header"><span>SHARED PW1 (EY21) HARDWARE</span></div>
+
+        <label class="field-label">Deployment Target Preview</label>
+        <select id="model-select">
+          <option value="pw1-browser" selected>PW1 Unjailbroken (FW 5.6.1.1 Browser)</option>
+          <option value="pw1-jailbroken">PW1 Jailbroken (Full 1024×758 KUAL/eips)</option>
+          <option value="pw4">Kindle Paperwhite 4 (Flush Bezel Reference)</option>
+        </select>
+
+        <label class="field-label">Orientation (758×1024 E-Ink Pearl)</label>
+        <div class="segmented" id="orientation-toggle">
+          <button data-orient="landscape" class="active">Landscape (1024×758)</button>
+          <button data-orient="portrait">Portrait (758×1024)</button>
+        </div>
+
+        <label class="field-label">Simulator Screen Scale</label>
+        <div class="segmented" id="scale-toggle">
+          <button data-scale="large" class="active">Large</button>
+          <button data-scale="native">100% Native</button>
+          <button data-scale="compact">Compact</button>
+        </div>
+
+        <label class="field-label">UI Engine</label>
+        <div class="segmented" id="engine-toggle">
+          <button data-engine="kindle-hd" class="active">PW1 Native (212 PPI)</button>
+          <button data-engine="pixel-212">212×104 Exact Mode</button>
+        </div>
+
+        <div class="slider-row">
+          <label>PW1 Frontlight Level <span id="light-val">85%</span></label>
+          <input type="range" id="frontlight-slider" min="40" max="100" value="85" />
+        </div>
+
+        <button id="full-refresh-btn" class="btn-primary">
+          Trigger Full E-Ink Pearl Flash Refresh
+        </button>
+      </section>
+
+      <!-- 4. Real Kindle PW1 Single URL -->
+      <section class="control-group kindle-connect-card">
+        <div class="group-header"><span>ONE URL FOR REAL KINDLE PW1</span></div>
+        <p class="help-text">
+          1. On PW1 Home screen, tap Search and type <code>~ds</code> + Enter (disables sleep).<br/>
+          2. Open <b>Experimental Browser</b> to:
+        </p>
+        <div class="url-box" id="kindle-url-box">http://localhost:5050/kindle</div>
+        <div class="btn-row">
+          <a href="/kindle" target="_blank" class="btn-secondary link-btn">Preview Unified /kindle Page</a>
+        </div>
+      </section>
+    </aside>
+
+    <!-- Main Stage: Shared Kindle Paperwhite 1 Bezel & E-Ink Canvas -->
+    <main class="stage">
+      <div class="stage-top-bar">
+        <div class="telemetry">
+          <span id="telemetry-project">Project: spotifykindle</span>
+          <span class="sep">&bull;</span>
+          <span id="telemetry-model">Kindle Paperwhite 1 (EY21)</span>
+          <span class="sep">&bull;</span>
+          <span id="telemetry-res">1024 × 758 (212 PPI E-Ink Pearl)</span>
+          <span class="sep">&bull;</span>
+          <span id="telemetry-tick">Tick: 0</span>
+        </div>
+        <div class="telemetry-right">
+          <span id="telemetry-status">Initializing Unified Kindle Simulator...</span>
+        </div>
+      </div>
+
+      <div class="device-wrapper">
+        <div id="kindle-bezel" class="kindle-bezel model-basic orient-landscape">
+          <div class="screen-well">
+            <div id="eink-paper" class="eink-paper">
+              <canvas id="eink-canvas" width="1024" height="758"></canvas>
+              <div id="eink-flash" class="eink-flash"></div>
+            </div>
+          </div>
+          <div class="bezel-logo">kindle</div>
+        </div>
+      </div>
+
+      <!-- Bottom Serial / Event Console -->
+      <div class="serial-console">
+        <div class="console-header">
+          <span>SHARED SERIAL MONITOR / SIMULATOR LOG</span>
+          <button id="clear-log-btn">Clear</button>
+        </div>
+        <div id="console-output" class="console-output"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/simulator/simulator.js"></script>
+</body>
+</html>

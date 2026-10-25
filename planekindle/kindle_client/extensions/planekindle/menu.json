@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "name": "PlaneKindle (PW1 EY21)",
+      "priority": 1,
+      "items": [
+        {
+          "name": "Start Plane Tracker (Fullscreen Browser)",
+          "priority": 1,
+          "action": "./bin/plane_pw1.sh",
+          "params": "start_browser"
+        },
+        {
+          "name": "Disable Sleep Only (preventScreenSaver)",
+          "priority": 2,
+          "action": "./bin/plane_pw1.sh",
+          "params": "nosleep"
+        },
+        {
+          "name": "Re-enable Sleep & Exit",
+          "priority": 3,
+          "action": "./bin/plane_pw1.sh",
+          "params": "stop"
+        }
+      ]
+    }
+  ]
+}

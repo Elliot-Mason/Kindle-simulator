@@ -1,0 +1,468 @@
+:root {
+  --bg-dark: #0f1115;
+  --panel-bg: #171a21;
+  --panel-border: #262b36;
+  --text-main: #f0f3f8;
+  --text-muted: #949dae;
+  --accent-color: #1db954;
+  --eink-light: 85%;
+  --eink-warmth: 0%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-dark);
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 356px 1fr;
+  height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  background: var(--panel-bg);
+  border-right: 1px solid var(--panel-border);
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.brand-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  box-shadow: 0 0 12px var(--accent-color);
+  transition: all 0.2s;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.brand p {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.control-group {
+  background: #12151b;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.project-switcher-group {
+  border-color: #353d4f;
+  background: linear-gradient(180deg, #171c26 0%, #12151b 100%);
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 9px;
+  cursor: pointer;
+}
+
+.checkbox-row input {
+  accent-color: var(--accent-color);
+}
+
+.group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 9px;
+}
+
+.status-pill {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.status-pill.online {
+  background: rgba(29, 185, 84, 0.18);
+  color: #3be477;
+  border: 1px solid rgba(29, 185, 84, 0.4);
+}
+
+.status-pill.connecting {
+  background: rgba(245, 166, 35, 0.18);
+  color: #f5a623;
+}
+
+.status-pill.error {
+  background: rgba(233, 20, 41, 0.2);
+  color: #ff6b7a;
+}
+
+.field-label {
+  display: block;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin: 9px 0 4px;
+}
+
+select,
+input[type="number"] {
+  width: 100%;
+  background: #1d222c;
+  color: var(--text-main);
+  border: 1px solid #2f3746;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 12px;
+  outline: none;
+}
+
+.input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #1b2029;
+  padding: 3px;
+  border-radius: 7px;
+  border: 1px solid #2b3240;
+}
+
+#scale-toggle {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.segmented button {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.segmented button.active {
+  background: #2d3545;
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.sub-panel {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed #2b3240;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.btn-primary,
+.btn-secondary {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary {
+  background: var(--accent-color);
+  color: #000;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.08);
+}
+
+.btn-secondary {
+  background: #202632;
+  color: var(--text-main);
+  border-color: #313949;
+}
+
+.btn-secondary:hover {
+  background: #2a3242;
+}
+
+.slider-row {
+  margin-top: 10px;
+}
+
+.slider-row label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.slider-row input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent-color);
+}
+
+.help-text {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+  line-height: 1.4;
+}
+
+.url-box {
+  background: #0c0e12;
+  border: 1px solid #2b3240;
+  border-radius: 6px;
+  padding: 8px;
+  font-family: "Consolas", "SFMono-Regular", monospace;
+  font-size: 12px;
+  color: var(--accent-color);
+  text-align: center;
+  user-select: all;
+}
+
+/* Main Stage */
+.stage {
+  display: grid;
+  grid-template-rows: 40px 1fr 115px;
+  height: 100vh;
+  background: radial-gradient(circle at center, #1c212b 0%, #0d0f14 100%);
+}
+
+.stage-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--panel-border);
+  background: rgba(18, 21, 27, 0.8);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.telemetry .sep {
+  margin: 0 8px;
+  opacity: 0.4;
+}
+
+#telemetry-project {
+  color: #fff;
+  font-weight: 700;
+}
+
+.device-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow: auto;
+}
+
+/* Kindle Hardware Bezel Simulation */
+.kindle-bezel {
+  position: relative;
+  background: #232528;
+  border-radius: 26px;
+  padding: 34px 44px 40px 34px;
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.75),
+    inset 0 1px 2px rgba(255, 255, 255, 0.14),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.8);
+  border: 1px solid #35383d;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.kindle-bezel.orient-portrait {
+  padding: 34px 32px 52px 32px;
+}
+
+.kindle-bezel.model-basic .screen-well {
+  box-shadow:
+    inset 0 3px 7px rgba(0, 0, 0, 0.65),
+    0 1px 0 rgba(255, 255, 255, 0.08);
+  border: 3px solid #181a1d;
+}
+
+.screen-well {
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #141517;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.eink-paper {
+  position: relative;
+  background: #e5e5e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: brightness(var(--eink-light));
+  transition: filter 0.15s ease;
+}
+
+.eink-paper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.035) 1px, transparent 0);
+  background-size: 3px 3px;
+}
+
+#eink-canvas {
+  display: block;
+}
+
+.eink-flash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.eink-flash.flashing {
+  animation: einkFullRefresh 550ms steps(1, end) forwards;
+}
+
+@keyframes einkFullRefresh {
+  0% {
+    opacity: 1;
+    background: #141414;
+  }
+  38% {
+    opacity: 1;
+    background: #f2f1ec;
+  }
+  72% {
+    opacity: 1;
+    background: #141414;
+  }
+  100% {
+    opacity: 0;
+    background: transparent;
+  }
+}
+
+.bezel-logo {
+  position: absolute;
+  bottom: 12px;
+  font-family: Georgia, serif;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  color: #676b73;
+  user-select: none;
+}
+
+/* Serial Monitor / Log Console */
+.serial-console {
+  background: #0b0d11;
+  border-top: 1px solid var(--panel-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.console-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 16px;
+  background: #13161d;
+  border-bottom: 1px solid #1f2430;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.console-header button {
+  background: transparent;
+  border: 1px solid #2d3444;
+  color: var(--text-muted);
+  border-radius: 4px;
+  font-size: 11px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.console-output {
+  flex: 1;
+  padding: 8px 16px;
+  overflow-y: auto;
+  font-family: "Consolas", "SFMono-Regular", monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #b7c2d6;
+}
+
+.log-line .ts {
+  color: #5b6578;
+  margin-right: 8px;
+}
+
+.log-line.spot {
+  color: #59e387;
+}
+
+.log-line.flight {
+  color: #5bc0ff;
+}
+
+.log-line.warn {
+  color: #f5a623;
+}
